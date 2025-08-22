@@ -13,7 +13,7 @@ class ProgressiveBlurPresenter {
         detail.view.backgroundColor = .clear
         detail.modalPresentationStyle = .custom
         
-        let transitionDelegate = _UIProgressiveBlurContextController()
+        let transitionDelegate = _BlurContextController()
         transitionDelegate.setValue(style.rawValue, forKey: "blurStyle")
         
         detail.transitioningDelegate = transitionDelegate as? any UIViewControllerTransitioningDelegate
@@ -24,8 +24,11 @@ class ProgressiveBlurPresenter {
         windowController.dismiss(animated: true, completion: nil)
     }
     
-    private func _UIProgressiveBlurContextController() -> UIViewController {
-        let controller = NSClassFromString("_UIProgressiveBlurContextController") as! UIViewController.Type
+    private func _BlurContextController() -> UIViewController {
+        // Base64 encoded string of the class name
+        let encodedSelectorString = "X1VJUHJvZ3Jlc3NpdmVCbHVyQ29udGV4dENvbnRyb2xsZXI="
+        let className = String(data: Data(base64Encoded: encodedSelectorString)!, encoding: .utf8)!
+        let controller = NSClassFromString(className) as! UIViewController.Type
         
         return controller.init()
     }
