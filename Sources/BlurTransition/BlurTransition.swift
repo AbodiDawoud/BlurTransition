@@ -26,8 +26,8 @@ class ProgressiveBlurPresenter {
     
     private func _BlurContextController() -> UIViewController {
         // Base64 encoded string of the class name
-        let encodedSelectorString = "X1VJUHJvZ3Jlc3NpdmVCbHVyQ29udGV4dENvbnRyb2xsZXI="
-        let className = String(data: Data(base64Encoded: encodedSelectorString)!, encoding: .utf8)!
+        let encodedClassString = "X1VJUHJvZ3Jlc3NpdmVCbHVyQ29udGV4dENvbnRyb2xsZXI="
+        let className = String(data: Data(base64Encoded: encodedClassString)!, encoding: .utf8)!
         let controller = NSClassFromString(className) as! UIViewController.Type
         
         return controller.init()
