@@ -3,11 +3,30 @@
 
 import SwiftUI
 
+
+/// A presenter that displays SwiftUI views using a custom progressive blur transition.
+///
+/// Use the shared singleton `ProgressiveBlurPresenter.shared` to present or dismiss views
+/// with a blurred background. This provides a smooth iOS-native modal experience.
 @MainActor
-class ProgressiveBlurPresenter {
-    static var shared = ProgressiveBlurPresenter()
+public class ProgressiveBlurPresenter {
+    /// The shared singleton instance of the blur presenter.
+    public static var shared = ProgressiveBlurPresenter()
     
-    func present<V: View>(_ view: V, style: UIBlurEffect.Style) {
+    
+    /// Presents a SwiftUI view with a blurred background transition.
+    ///
+    /// Example:
+    /// ```swift
+    /// ProgressiveBlurPresenter.shared.present(
+    ///     MyDetailView(),
+    ///     style: .systemMaterial
+    /// )
+    /// ```
+    /// - Parameters:
+    ///   - view: The SwiftUI view to present.
+    ///   - style: The `UIBlurEffect.Style` to apply as the background blur.
+    public func present<V: View>(_ view: V, style: UIBlurEffect.Style) {
         let detail = UIHostingController(rootView: view)
         
         detail.view.backgroundColor = .clear
@@ -20,7 +39,14 @@ class ProgressiveBlurPresenter {
         windowController.present(detail, animated: true, completion: nil)
     }
     
-    func dismiss() {
+    
+    /// Dismisses the currently presented view.
+    ///
+    /// Example:
+    /// ```swift
+    /// ProgressiveBlurPresenter.shared.dismiss()
+    /// ```
+    public func dismiss() {
         windowController.dismiss(animated: true, completion: nil)
     }
     
@@ -41,14 +67,17 @@ class ProgressiveBlurPresenter {
 }
 
 
-struct ProgressiveBlurViewModifier<V: View>: ViewModifier {
+/// A view modifier that applies a progressive blur transition when presenting a view.
+///
+/// Use this modifier indirectly via the `blurTransition` view extension.
+internal struct _ProgressiveBlurViewModifier<V: View>: ViewModifier {
     @State private var didDisappear: Bool = false
     @Binding var isPresented: Bool
     
     let style: UIBlurEffect.Style
     let viewContent: () -> V
     
-    func body(content: Content) -> some View {
+    public func body(content: Content) -> some View {
         content
             .onChange(of: isPresented) { onValueChanged($0, $1) }
     }
@@ -80,13 +109,25 @@ struct ProgressiveBlurViewModifier<V: View>: ViewModifier {
 
 
 extension View {
-    func blurTransition<Content: View>(
+    /// Presents view using progressive blur transition.
+    ///
+    /// Example:
+    /// ```swift
+    /// MyDetailView()
+    ///     .blurTransition(style: .systemMaterial)
+    /// ```
+    ///
+    /// - Parameter isPresented: A binding to a Boolean value that determines whether to present the transition contetn.
+    /// - Parameter style: The `UIBlurEffect.Style` used for the transition background.
+    /// - Parameter content: The content to be displayed on the transition
+    /// - Returns: A modified view that applies the blur transition to the view hierachy
+    public func blurTransition<Content: View>(
         isPresented: Binding<Bool>,
         style: UIBlurEffect.Style = .systemChromeMaterial,
         content: @escaping () -> Content
     ) -> some View {
         self.modifier(
-            ProgressiveBlurViewModifier(isPresented: isPresented, style: style, viewContent: content)
+            _ProgressiveBlurViewModifier(isPresented: isPresented, style: style, viewContent: content)
         )
     }
 }
